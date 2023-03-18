@@ -6,5 +6,5 @@ This repository contains the code and output files of 3D visualization containin
 
 
 <p align="center">
-  <img src="titled_final_plot.png" width="550" title="hover text">
+  <img src="images/titled_final_plot.png" width="550" title="hover text">
 </p>

@@ -1,3 +1,7 @@
+remotes::install_github("tylermorganwall/rayrender")
+remotes::install_github("tylermorganwall/rayshader")
+
+
 library(rayshader)
 library(rayrender)
 library(sf)
@@ -16,25 +20,27 @@ library(devtools)
 library(usethis)
 library(eurostat)
 
-remotes::install_github("tylermorganwall/rayrender")
-remotes::install_github("tylermorganwall/rayshader")
-
-
+#Loading the required Geopackage Dataset
 map <- "DEU"
 data <- st_read("data/german_population/kontur_population_DE_20220630.gpkg")
 
+#Load states of European Nations
 st <- get_eurostat_geospatial(resolution = "20", nuts_level = 1, year = 2021)
 
+#Filter the dataset to the sate of Sachsen
 sachsen <- st %>%
   filter(NUTS_NAME == "Sachsen") %>%
   st_transform(crs = st_crs(data))
 
+#Plotting the map for an overview
 sachsen %>%
   ggplot() +
   geom_sf()
 
+#Interesect the Kontur data to limit to the state Sachsen
 state_sachsen <- st_intersection(data, sachsen)
 
+#Define aspect ratio based on bounding box
 bb <- st_bbox(state_sachsen)
 
 bottom_left <- st_point(c(bb[["xmin"]], bb[["ymin"]])) %>%
@@ -43,6 +49,7 @@ bottom_left <- st_point(c(bb[["xmin"]], bb[["ymin"]])) %>%
 bottom_right <- st_point(c(bb[["xmax"]], bb[["ymin"]])) %>%
   st_sfc(crs = st_crs(data))
 
+#Check by plotting points
 sachsen %>%
   ggplot() +
   geom_sf() +
@@ -57,6 +64,7 @@ top_left <- st_point(c(bb[["xmin"]], bb[["ymax"]])) %>%
 
 height <- st_distance(bottom_left, top_left)
 
+# handle conditions of width or height being the longer side
 if (width > height) {
   w_ratio <- 1
   h_ratio <- height / width
@@ -89,7 +97,6 @@ color_map <- met.brewer('Tam')
 swatchplot(color_map)
 
 
-
 texture <- grDevices::colorRampPalette(color_map, bias=2.5)(256)
 swatchplot(texture)
 
@@ -98,8 +105,6 @@ swatchplot(texture)
 # plot that map on 3d with rgl object 
 
 rgl:: rgl.close()           # to close the rgl window after test render 
-
-
 
 
 matrix_final %>%  
@@ -111,17 +116,6 @@ matrix_final %>%
 
 
 render_camera(theta = -15, phi = 45, zoom = .8)
-
-
-# test plot 
-
-# render_highquality(filename = 'images/test_plot.png',
-#                    interactive = FALSE,
-#                    lightdirection = 280,
-#                    lightaltitude = c(20, 80),
-#                    lightcolor = c(color_map[2], "white"),
-#                    lightintensity = c(600, 100))
-
 
 # choose a path for the final render image
 outfile <- "images/finalplot1.png"
